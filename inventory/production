@@ -1,0 +1,20 @@
+#!/usr/bin/env coffee
+
+###
+VEVO EC2 inventory script for Ansible.
+
+Splits out roles tag into individual groups.
+Drops "tag_roles_" prefix from role names.
+Only includes servers tagged with env:production.
+
+Make sure you do the following:
+
+$ export AWS_ACCESS_KEY_ID='AK123'
+$ export AWS_SECRET_ACCESS_KEY='abc123'
+###
+
+inventory = require "../lib/inventory"
+
+inventory.list "production", (err, inv) ->
+    return console.error "Error: #{err}" if err
+    console.log JSON.stringify inv, null, 4

@@ -1,0 +1,33 @@
+[localhost] 
+127.0.0.1 ansible_python_interpreter=/usr/local/bin/python
+
+[local]
+localhost ansible_python_interpreter=/usr/local/bin/python
+
+##################
+# Environments
+##################
+[tag_env_production]
+[tag_env_staging]
+
+[production:children]
+tag_env_production
+
+[staging:children]
+tag_env_staging
+
+##################
+# Roles
+##################
+[tag_roles_redis]
+[tag_roles_seod]
+[tag_roles_nagios]
+
+[redis:children]
+tag_roles_redis
+
+[seod:children]
+tag_roles_seod
+
+[nagios:children]
+tag_roles_nagios

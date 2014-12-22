@@ -1,0 +1,96 @@
+- name: Install latest redis on Ubuntu 14.04
+  hosts: nagios
+  # connection: local
+  user: ubuntu
+  sudo: yes
+  # sudo_user: root
+  vars:
+
+  tasks:
+    - name: ensure apt is up to date
+      apt: update_cache=yes
+
+    - name: install dependencies
+      apt: name={{ item }} state=latest
+      with_items:
+        - wget
+        - build-essential
+        - apache2
+        - apache2-utils
+        - php5-gd
+        - libgd2-xpm-dev
+        - libapache2-mod-php5
+        - postfix
+
+    - name: create nagcmd group
+      group: name=nagcmd system=yes state=present
+
+    - name: create nagios user
+      user: name=nagios createhome=no home=/usr/local/nagios system=yes groups=nagcmd
+
+    - name: add www-data user to nagcmd group
+      user: name=www-data groups=nagcmd,www-data
+
+    - name: fetch nagios
+      shell: wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.0.7.tar.gz chdir=/tmp
+
+    - name: fetch nagios plugins
+      shell: wget http://nagios-plugins.org/download/nagios-plugins-2.0.tar.gz chdir=/tmp
+
+    - name: unpack nagios
+      shell: tar -xzvf nagios-4.0.7.tar.gz chdir=/tmp
+
+    - name: unpack nagios plugins
+      shell: tar -xzvf nagios-plugins-2.0.tar.gz chdir=/tmp
+
+    - name: build nagios
+      shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/sbin/sendmail --with-httpd_conf=/etc/apache2/conf-available chdir=/tmp/nagios-4.0.7
+
+    - name: make all
+      shell: make all chdir=/tmp/nagios-4.0.7
+
+    - name: make install
+      shell: make install chdir=/tmp/nagios-4.0.7
+
+    - name: make install-init
+      shell: make install-init chdir=/tmp/nagios-4.0.7
+
+    - name: make install-config
+      shell: make install-config chdir=/tmp/nagios-4.0.7
+
+    - name: make install-commandmode
+      shell: make install-commandmode chdir=/tmp/nagios-4.0.7
+
+    - name: make install-webconf
+      shell: make install-webconf chdir=/tmp/nagios-4.0.7
+
+    - name: copy event handlers
+      shell: cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/ chdir=/tmp/nagios-4.0.7
+
+    - name: set user/group on event handlers
+      shell: chown -R nagios:nagios /usr/local/nagios/libexec/eventhandlers chdir=/tmp/nagios-4.0.7
+
+    - name: verify nagios configuration
+      shell: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg chdir=/tmp/nagios-4.0.7
+
+    - name: link to init script
+      file: state=link src=/etc/init.d/nagios dest=/etc/rcS.d/S99nagios
+
+    - name: build nagios plugins
+      shell: ./configure --with-nagios-user=nagios --with-nagios-group=nagios --enable-perl-modules --enable-extra-opts chdir=/tmp/nagios-plugins-2.0
+
+    - name: make
+      shell: make chdir=/tmp/nagios-plugins-2.0
+
+    - name: make install
+      shell: make install chdir=/tmp/nagios-plugins-2.0
+
+    - name: enable apache cgi module
+      shell: a2enmod cgi
+
+    # Todo: replace with 
+    - name: setup nagios apache users/passwords
+      shell: htpasswd -b -c /usr/local/nagios/etc/htpasswd.users nagiosadmin v3v0mu51c
+
+    - name: include nagios apache conf
+      lineinfile: dest=/etc/apache2/sites-enabled/000-default.conf insertbefore="</VirtualHost>" line="        Include conf-available/nagios.conf"

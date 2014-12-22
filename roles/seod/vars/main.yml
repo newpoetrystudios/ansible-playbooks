@@ -1,0 +1,10 @@
+---
+seod_user: ubuntu
+seod_group: ubuntu
+seod_repository: git@github.com:VEVO/Portal.git
+seod_branch: master
+seod_base_dir: /var/seod
+seod_src_dir: "{{ seod_base_dir }}/src"
+seod_releases_dir: "{{ seod_base_dir }}/releases"
+seod_shared_dir: "{{ seod_base_dir }}/shared"
+seod_current_link: "{{ seod_base_dir }}/current"

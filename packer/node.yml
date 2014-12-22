@@ -1,0 +1,30 @@
+- name: Install node.js + dev tools on Ubuntu 14.04
+  hosts: 127.0.0.1
+  connection: local
+  sudo: yes
+  sudo_user: root
+  tasks:
+    - name: ensure apt is up to date
+      apt: update_cache=yes
+
+    - name: install dependencies
+      apt: name={{ item }} state=latest
+      with_items:
+        - build-essential
+        - python-software-properties
+        - python
+        - python-pycurl
+        - python-pip
+        - monit
+
+    - name: install node repository
+      apt_repository: repo='ppa:chris-lea/node.js' state=present
+
+    - name: ensure node packages available
+      apt: update_cache=yes
+
+    - name: install node.js package
+      apt: pkg=nodejs
+
+    - name: install aws cli tools
+      pip: name=awscli

@@ -1,0 +1,155 @@
+- name: ensure apt is up to date
+  sudo: yes
+  apt: update_cache=yes
+
+- name: install dependencies
+  sudo: yes
+  apt: name={{ item }} state=latest
+  with_items:
+    - wget
+    - build-essential
+    - apache2
+    - apache2-utils
+    - php5-gd
+    - libgd2-xpm-dev
+    - libapache2-mod-php5
+    - postfix
+    - libssl-dev
+    - openssl
+    - libssl0.9.8
+    - cpanminus
+
+- name: stop nrpe
+  sudo: yes
+  service: name=nagios-nrpe-server state=stopped
+
+- name: create nagcmd group
+  sudo: yes
+  group: name=nagcmd system=yes state=present
+
+- name: create nagios user
+  sudo: yes
+  user: name=nagios createhome=no home=/usr/local/nagios system=yes groups=nagcmd
+
+- name: start nrpe
+  sudo: yes
+  service: name=nagios-nrpe-server state=started
+
+- name: add www-data user to nagcmd group
+  sudo: yes
+  user: name=www-data groups=nagcmd,www-data
+
+- name: fetch nagios
+  shell: wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.0.7.tar.gz chdir=/tmp
+
+- name: fetch nagios plugins
+  shell: wget http://nagios-plugins.org/download/nagios-plugins-2.0.tar.gz chdir=/tmp
+
+- name: fetch nrpe plugin
+  shell: wget http://sourceforge.net/projects/nagios/files/nrpe-2.x/nrpe-2.15/nrpe-2.15.tar.gz/download chdir=/tmp
+
+- name: rename nrpe download
+  shell: mv /tmp/download /tmp/nrpe-2.15.tar.gz
+
+- name: unpack nagios
+  shell: tar -xzvf nagios-4.0.7.tar.gz chdir=/tmp
+
+- name: unpack nagios plugins
+  shell: tar -xzvf nagios-plugins-2.0.tar.gz chdir=/tmp
+
+- name: unpack nrpe plugin
+  shell: tar -xzvf nrpe-2.15.tar.gz chdir=/tmp
+
+- name: build nagios
+  shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/sbin/sendmail --with-httpd_conf=/etc/apache2/conf-available chdir=/tmp/nagios-4.0.7
+
+- name: make all
+  shell: make all chdir=/tmp/nagios-4.0.7
+
+- name: make install
+  sudo: yes
+  shell: make install chdir=/tmp/nagios-4.0.7
+
+- name: make install-init
+  sudo: yes
+  shell: make install-init chdir=/tmp/nagios-4.0.7
+
+- name: make install-config
+  sudo: yes
+  shell: make install-config chdir=/tmp/nagios-4.0.7
+
+- name: make install-commandmode
+  sudo: yes
+  shell: make install-commandmode chdir=/tmp/nagios-4.0.7
+
+- name: make install-webconf
+  sudo: yes
+  shell: make install-webconf chdir=/tmp/nagios-4.0.7
+
+- name: copy event handlers
+  sudo: yes
+  shell: cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/ chdir=/tmp/nagios-4.0.7
+
+- name: set user/group on event handlers
+  sudo: yes
+  shell: chown -R nagios:nagios /usr/local/nagios/libexec/eventhandlers chdir=/tmp/nagios-4.0.7
+
+- name: verify nagios configuration
+  sudo: yes
+  shell: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+- name: link to init script
+  sudo: yes
+  file: state=link src=/etc/init.d/nagios dest=/etc/rcS.d/S99nagios
+
+- name: build nagios plugins
+  shell: ./configure --with-nagios-user=nagios --with-nagios-group=nagios --enable-perl-modules --enable-extra-opts chdir=/tmp/nagios-plugins-2.0
+
+- name: make
+  shell: make chdir=/tmp/nagios-plugins-2.0
+
+- name: make install
+  sudo: yes
+  shell: make install chdir=/tmp/nagios-plugins-2.0
+
+- name: build nrpe plugin
+  shell: ./configure --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu chdir=/tmp/nrpe-2.15
+
+- name: make
+  shell: make chdir=/tmp/nrpe-2.15
+
+- name: copy check_nrpe to nagios plugins directory
+  sudo: yes
+  shell: cp /tmp/nrpe-2.15/src/check_nrpe /usr/local/nagios/libexec
+
+- name: set user/group for check_nrpe
+  sudo: yes
+  file: path=/usr/local/nagios/libexec/check_nrpe owner=nagios group=nagios state=file mode=0755
+
+- name: set user/group on libexec directory
+  sudo: yes
+  shell: chown -R nagios:nagios . chdir=/usr/local/nagios/libexec
+
+- name: enable apache cgi module
+  sudo: yes
+  shell: a2enmod cgi
+  notify: restart apache
+
+# Todo: replace with 
+- name: setup nagios apache users/passwords
+  sudo: yes
+  shell: htpasswd -b -c /usr/local/nagios/etc/htpasswd.users nagiosadmin v3v0mu51c
+  notify: restart apache
+
+- name: include nagios apache conf
+  sudo: yes
+  lineinfile: dest=/etc/apache2/sites-enabled/000-default.conf insertbefore="</VirtualHost>" line="        Include conf-available/nagios.conf"
+  notify: restart apache
+
+- name: install CPAN Redis module for check_redis.pl plugin
+  sudo: yes
+  cpanm: name=Redis notest=True
+
+- name: copy check_redis.pl plugin
+  sudo: yes
+  copy: src=check_redis.pl dest=/usr/local/nagios/libexec/check_redis.pl owner=nagios group=nagios mode=755

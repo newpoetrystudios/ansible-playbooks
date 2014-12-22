@@ -1,0 +1,49 @@
+
+- name: ensure apt is up to date
+  sudo: yes
+  apt: update_cache=yes
+
+- name: install python-pycurl (chris-lea/redis-server repo install fails otherwise)
+  sudo: yes
+  apt: pkg=python-pycurl state=latest
+
+- name: install redis repository
+  sudo: yes
+  apt_repository: repo='ppa:chris-lea/redis-server' state=present
+
+- name: ensure apt is up to date with redis
+  sudo: yes
+  apt: update_cache=yes
+
+- name: install redis
+  sudo: yes
+  apt: pkg=redis-server state=latest
+
+- name: install monit
+  sudo: yes
+  apt: pkg=monit state=latest
+
+- name: copy redis.conf template to servers
+  sudo: yes
+  copy: src=redis.conf dest=/etc/redis/redis.conf owner=root mode=644
+  notify: restart redis
+
+- name: setup s3 hourly backup of dump.rdb
+  sudo: yes
+  template: src=redis-backup.sh dest=/etc/cron.hourly/redis-backup.sh owner=root mode=744
+
+- name: copy sysctl.conf to set vm.overcommit_memory to 1 - fixes dataset dump failures
+  sudo: yes
+  copy: src=redis-sysctl.conf dest=/etc/sysctl.conf
+
+- name: monit config
+  sudo: yes
+  copy: src=redis-monit.conf dest=/etc/monit/conf.d/redis.conf
+
+- name: install pip
+  sudo: yes
+  apt: pkg=python-pip state=latest
+
+- name: install aws cli tools
+  sudo: yes
+  pip: name=awscli

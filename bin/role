@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Create a new role directory structure
+
+mkdir -p roles/$1
+mkdir -p roles/$1/tasks
+mkdir -p roles/$1/handlers
+mkdir -p roles/$1/templates
+mkdir -p roles/$1/files
+mkdir -p roles/$1/vars
+mkdir -p roles/$1/meta
+
+touch roles/$1/tasks/main.yml
+touch roles/$1/handlers/main.yml
+touch roles/$1/templates/example.conf.j2
+touch roles/$1/files/example.txt
+touch roles/$1/files/example.sh
+touch roles/$1/vars/main.yml
+touch roles/$1/meta/main.yml
+
+echo "- include: ${1}.yml" >> site.yml

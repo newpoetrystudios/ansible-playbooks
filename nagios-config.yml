@@ -1,0 +1,9 @@
+---
+# check facts against all hosts first so we get the hostvars dict populated
+# this will be used in some of the templates (linux-servers.cfg.j2, etc)
+- hosts: all
+  tasks: []
+
+- hosts: nagios
+  roles:
+    - { role: nagios-config, tags: nagios-config }

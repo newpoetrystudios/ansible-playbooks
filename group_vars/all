@@ -1,0 +1,3 @@
+---
+nagios_base_dir: /usr/local/nagios
+nagios_etc_dir: "{{nagios_base_dir}}/etc"

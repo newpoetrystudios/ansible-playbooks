@@ -1,0 +1,7 @@
+- name: restart nagios
+  sudo: yes
+  service: name=nagios state=restarted
+
+- name: restart apache
+  sudo: yes
+  service: name=apache2 state=restarted

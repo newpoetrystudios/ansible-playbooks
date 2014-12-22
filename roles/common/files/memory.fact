@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+var TB = 1099511627776;
+var GB = 1073741824;
+var MB = 1048576;
+
+var fs      = require("fs");
+var stats   = fs.readFileSync("/proc/meminfo", "utf8");
+var matches = stats.match(/MemTotal:\s+(\d+) kB/);
+var bytes   = parseInt(matches[1], 10) * 1024;
+var human   = "";
+
+var bytesToHuman = function(bytes) {
+    if (bytes > TB) return Math.round(bytes / TB) + "T";
+    if (bytes > GB) return Math.round(bytes / GB) + "G";
+    if (bytes > MB) return Math.round(bytes / MB) + "M";
+    return bytes;
+};
+
+var output = {
+    total: bytesToHuman(bytes)
+};
+
+console.log(JSON.stringify(output, null, 4));

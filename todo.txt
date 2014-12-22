@@ -1,0 +1,4 @@
+
+1) Better handling for getting private key for github access to servers (seod, etc).
+2) Write up how to set up security groups.
+3) 

@@ -1,0 +1,76 @@
+---
+- name: disable localhost config
+  sudo: yes
+  lineinfile:
+    dest={{ nagios_etc_dir }}/nagios.cfg
+    line="# cfg_file=/usr/local/nagios/etc/objects/localhost.cfg"
+    regexp="cfg_file\=/usr/local/nagios/etc/objects/localhost\.cfg"
+
+- name: copy commands.cfg to nagios server
+  sudo: yes
+  notify: restart nagios
+  copy: >
+    src=commands.cfg
+    dest={{ nagios_etc_dir }}/objects/commands.cfg
+    owner=nagios
+    group=nagios
+    mode=640
+
+- name: render hosts.cfg template to nagios server
+  sudo: yes
+  template: >
+    src=hosts.cfg
+    dest={{ nagios_etc_dir }}/objects/hosts.cfg
+    owner=nagios
+    group=nagios
+    mode=640
+
+- name: render hostgroups.cfg template to nagios server
+  sudo: yes
+  template: >
+    src=hostgroups.cfg
+    dest={{ nagios_etc_dir }}/objects/hostgroups.cfg
+    owner=nagios
+    group=nagios
+    mode=640
+
+# - name: render additional_commands.cfg template to nagios server
+#   template: src=additional_commands.cfg dest={{ nagios_etc_dir }}/objects/additional_commands.cfg
+
+- name: render services.cfg template to nagios server
+  sudo: yes
+  template: >
+    src=services.cfg
+    dest={{ nagios_etc_dir }}/objects/services.cfg
+    owner=nagios
+    group=nagios
+    mode=640
+
+- name: load hosts.cfg
+  sudo: yes
+  notify: restart nagios
+  lineinfile: >
+    dest={{ nagios_etc_dir }}/nagios.cfg
+    line="cfg_file={{ nagios_etc_dir }}/objects/hosts.cfg"
+    regexp="cfg_file\={{ nagios_etc_dir }}/objects/hosts\.cfg"
+
+- name: load hostgroups.cfg
+  sudo: yes
+  notify: restart nagios
+  lineinfile: >
+    dest={{ nagios_etc_dir }}/nagios.cfg
+    line="cfg_file={{ nagios_etc_dir }}/objects/hostgroups.cfg"
+    regexp="cfg_file\={{ nagios_etc_dir }}/objects/hostgroups\.cfg"
+
+- name: load services.cfg
+  sudo: yes
+  notify: restart nagios
+  lineinfile: >
+    dest={{ nagios_etc_dir }}/nagios.cfg
+    line="cfg_file={{ nagios_etc_dir }}/objects/services.cfg"
+    regexp="cfg_file\={{ nagios_etc_dir }}/objects/services\.cfg"
+
+- name: verify nagios configuration
+  sudo: yes
+  shell: "{{ nagios_base_dir }}/bin/nagios -v {{ nagios_etc_dir }}/nagios.cfg"
+  notify: restart nagios

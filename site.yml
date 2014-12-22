@@ -1,0 +1,7 @@
+---
+- include: common.yml
+- include: nagios.yml
+- include: redis.yml
+- include: seod.yml
+# - include: nagios-config.yml
+# - include: seod-deploy.yml

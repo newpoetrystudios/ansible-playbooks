@@ -1,0 +1,3 @@
+- name: restart nagios
+  sudo: yes
+  service: name=nagios state=restarted

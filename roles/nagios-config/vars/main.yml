@@ -1,0 +1,20 @@
+---
+nagios_host_groups:
+  - name: linux
+    alias: Linux Servers
+    checks:
+      - {command: 'check_nrpe!check_load', description: 'CPU Load'}
+      - {command: 'check_nrpe!check_users', description: 'Current Users'}
+      - {command: 'check_nrpe!check_xvda1', description: '/dev/xvda1 Free Space'}
+      - {command: 'check_nrpe!check_total_procs', description: 'Total Processes'}
+      - {command: 'check_nrpe!check_users', description: 'Current Users'}
+  - name: redis
+    alias: Redis Servers
+    checks:
+      - {command: 'check_redis!6379!"1,2"!"80,90"!blocked_clients,connected_clients!50,~!100,~', description: 'Redis'}
+  # - name: seod
+  #   alias: seod Servers
+  #   checks:
+  #     - {}
+
+nagios_commands:
