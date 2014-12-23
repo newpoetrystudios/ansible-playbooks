@@ -2,6 +2,7 @@
 - include: common.yml
 - include: nagios.yml
 - include: redis.yml
-- include: seod.yml
 # - include: nagios-config.yml
-# - include: seod-deploy.yml
+- include: nodejs.yml
+- include: foundationdb.yml
+- include: docker.yml

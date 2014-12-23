@@ -1,0 +1,10 @@
+---
+# check facts against all hosts first so we get the hostvars dict populated
+# this will be used in the cron task so we have the IP address of the redis
+# server.
+- hosts: all
+  tasks: []
+
+- hosts: foundationdb
+  roles:
+     - { role: foundationdb, tags: foundationdb }

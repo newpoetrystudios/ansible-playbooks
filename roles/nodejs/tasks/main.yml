@@ -1,0 +1,19 @@
+- name: install nodesource key
+  sudo: yes
+  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+- name: install nodesource repository
+  sudo: yes
+  apt_repository: repo="deb https://deb.nodesource.com/node-devel trusty main" state=present
+
+- name: ensure apt is up to date
+  sudo: yes
+  apt: update_cache=yes
+
+- name: install node.js
+  sudo: yes
+  apt: name=nodejs state=present
+
+- name: install build tools
+  sudo: yes
+  apt: name=build-essential state=present
