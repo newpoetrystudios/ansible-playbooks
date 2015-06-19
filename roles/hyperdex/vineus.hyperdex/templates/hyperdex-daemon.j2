@@ -1,0 +1,42 @@
+# defaults file for running a HyperDex daemon
+
+# Start the HyperDex daemon on this machine?
+# Allowable values are "true" and "false".
+# By default, no daemon will be started.
+# If you set this to "true", you must also consider setting the other
+# HYPERDEX_DAEMON_* variables as well.
+HYPERDEX_DAEMON_ENABLE={{ hyperdex_daemon_enable|lower }}
+
+# Directory where HyperDex daemon logs should be stored.
+# This directory must exist and be writable by the specified user.
+# It should be an empty directory reserved for the daemon.
+#
+# REQUIRED:
+HYPERDEX_DAEMON_LOG_DIR={{ hyperdex_daemon_log_dir }}
+
+# Directory where HyperDex daemon data should be stored.
+# This directory must exist and be writable by the specified user.
+# It should be an empty directory reserved for the daemon.
+#
+# REQUIRED:
+HYPERDEX_DAEMON_DATA_DIR={{ hyperdex_daemon_data_dir }}
+
+# Address and port to bind to for incoming connections.
+# Valid values include "auto", an IPv4 or IPv6 address, or a hostname.
+#
+# The address should be accessible by other daemons and clients in the cluster.
+#
+# The address must be bound to a local interface so that the daemon may bind to
+# it.  If the value "auto" is provided (the default), then the daemon will
+# attempt to bind to the first interface that is not the loopback interface.
+HYPERDEX_DAEMON_LISTEN_ADDR={{ hyperdex_daemon_listen_addr }}
+HYPERDEX_DAEMON_LISTEN_PORT={{ hyperdex_daemon_port }}
+
+# Address and port of an existing cluster to join.
+#
+# This must be the address (hostname or IPv{4,6}) and port of one of the
+# coordinators in the cluster.
+#
+# REQUIRED:
+HYPERDEX_DAEMON_CONNECT_ADDR={{ hyperdex_daemon_connect_addr }}
+HYPERDEX_DAEMON_CONNECT_PORT={{ hyperdex_daemon_connect_port }}

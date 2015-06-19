@@ -1,0 +1,22 @@
+---
+- name: Ubuntu | Set hyperdex_loaded_distribution
+  set_fact:
+    hyperdex_loaded_distribution: "{{ ansible_distribution }}"
+
+- name: Ubuntu | Add hyperdex apt key
+  apt_key:
+    url=http://ubuntu.hyperdex.org/hyperdex.gpg.key
+    state=present
+
+- name: Ubuntu | Add hyperdex repository
+  apt_repository:
+    repo="deb [arch=amd64] http://ubuntu.hyperdex.org {{ ansible_distribution_release }} main"
+    state=present
+    update_cache=yes
+
+- name: Ubuntu | Install hyperdex
+  apt:
+    name=hyperdex
+    update_cache=yes
+    cache_valid_time=86400
+    state=latest

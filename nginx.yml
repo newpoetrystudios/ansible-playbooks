@@ -1,0 +1,4 @@
+---
+- hosts: nginx
+  roles:
+    - { role: nginx, tags: nginx, sudo: yes }

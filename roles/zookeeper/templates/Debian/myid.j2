@@ -1,0 +1,5 @@
+{% for server in zookeeperZooCfg.servers %}
+{% if server.host == inventory_hostname %}
+{{ loop.index}}
+{% endif %}
+{% endfor %}

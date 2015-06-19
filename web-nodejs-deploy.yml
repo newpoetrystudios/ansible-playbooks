@@ -1,0 +1,5 @@
+---
+# - hosts: web-nodejs
+- hosts: all
+  roles:
+    - { role: web-nodejs-deploy, tags: web-nodejs-deploy, sudo: yes }

@@ -1,0 +1,53 @@
+# {{ ansible_managed }}
+#
+# More Info:
+# http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_configuration
+
+# Part of what ZooKeeper does is to determine which servers are up and running at any given time, and the
+# minimum session time out is defined as two "ticks". The tickTime parameter specifies, in miliseconds, how long
+# each tick should be
+tickTime={{ zookeeperZooCfg.tickTime | default("2000") }}
+
+# The number of ticks that the initial
+# synchronization phase can take
+initLimit={{ zookeeperZooCfg.initLimit | default("10") }}
+
+# The number of ticks that can pass between
+# sending a request and getting an acknowledgement
+syncLimit={{ zookeeperZooCfg.syncLimit | default("5") }}
+
+# This is the directory in which ZooKeeper will store data about the cluster. This directory should start out
+# empty.
+dataDir={{ zookeeperZooCfg.dataDir }}
+
+# This is the port on which Solr will access ZooKeeper.
+clientPort={{ zookeeperZooCfg.clientPort | default("2181") }}
+
+{% if zookeeperZooCfg is defined and zookeeperZooCfg.servers is defined %}
+# server.x=[hostname]:nnnnn[:nnnnn], etc
+#
+#       servers making up the ZooKeeper ensemble. When the server starts up, it determines which server it is by looking
+#       for the file myid in the data directory. That file contains the server number, in ASCII, and it should
+#       match x in server.x in the left hand side of this setting.
+#
+#       The list of servers that make up ZooKeeper servers that is used by the clients must match the list of ZooKeeper
+#       servers that each ZooKeeper server has.
+#
+#       There are two port numbers nnnnn. The first followers use to connect to the leader, and the second is for leader election.
+#       server.x=[hostname]:nnnnn[:nnnnn]
+{% for server in zookeeperZooCfg.servers %}
+server.{{ loop.index}}={{ server.host }}:{{ server.ports }}
+{% endfor %}
+{% endif %}
+
+{% if zookeeperZooCfg is defined and zookeeperZooCfg.autopurge is defined %}
+# Be sure to read the maintenance section of the
+# administrator guide before turning on autopurge.
+#
+# http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
+#
+# The number of snapshots to retain in dataDir
+autopurge.snapRetainCount={{ zookeeperZooCfg.autopurge.snapRetainCount }}
+# Purge task interval in hours
+autopurge.purgeInterval={{ zookeeperZooCfg.autopurge.purgeInterval }}
+{% endif %}

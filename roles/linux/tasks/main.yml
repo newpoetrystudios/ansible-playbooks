@@ -1,0 +1,34 @@
+# Todo: ipchains? other security?
+
+- name: Update apt cache
+  apt: update_cache=yes
+
+- name: Update all packages to latest version
+  apt: upgrade=yes
+
+- name: Install base packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - nagios-nrpe-server
+    - nagios-plugins
+    - emacs
+    - build-essential
+    - python-software-properties
+    - python
+    - python-pycurl
+    - python-pip
+    - collectd
+    - collectd-utils
+    - awscli
+    - git
+
+- name: Ensure local fact directory exists
+  file: state=directory dest=/etc/ansible/facts.d
+
+- name: Copy memory fact script (so we can monitor memory usage via Nagios)
+  copy: src=memory.fact dest=/etc/ansible/facts.d/memory.fact mode=750 owner=ubuntu
+
+- name: Set allowed hosts so that nrpe daemon accepts connections from nagios servers
+  template: src=nrpe.cfg.j2 dest=/etc/nagios/nrpe.cfg
+  notify:
+  - restart nrpe

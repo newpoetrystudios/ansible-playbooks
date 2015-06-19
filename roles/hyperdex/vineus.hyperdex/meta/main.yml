@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: Vincent de Lagabbe
+  description:
+  company: Challender Deep
+  license: MIT
+  min_ansible_version: 1.6
+  platforms:
+  - name: Ubuntu
+    versions:
+    - precise
+    - quantal
+    - raring
+    - saucy
+    - trusty
+  categories:
+  - clustering
+  - database
+  - database:nosql
+dependencies: []

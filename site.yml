@@ -6,3 +6,5 @@
 - include: nodejs.yml
 - include: foundationdb.yml
 - include: docker.yml
+- include: hyperdex.yml
+- include: bamboo.yml

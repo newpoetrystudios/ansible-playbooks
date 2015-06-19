@@ -1,0 +1,4 @@
+---
+# tasks file for nginx
+  - name: Install nginx packages
+    apt: name=nginx state=present

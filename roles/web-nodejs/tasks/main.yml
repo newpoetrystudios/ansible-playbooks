@@ -1,0 +1,11 @@
+---
+# tasks file for web-nodejs
+  - name: Copy nginx configuration template
+    template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+    notify:
+      - restart nginx
+
+  - name: Copy nginx proxy config for node.js
+    template: src=nginx-proxy.conf.j2 dest=/etc/nginx/conf.d/proxy.conf
+    notify:
+      - restart nginx

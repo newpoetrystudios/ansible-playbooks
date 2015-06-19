@@ -1,0 +1,87 @@
+---
+- name: Debian | Create system user
+  group: >
+   name={{zookeeper_inst.group}}
+   state=present
+
+- name: Debian | Create system user
+  user: >
+   name={{zookeeper_inst.user}}
+   state=present
+
+- name: Debian | Extract the Version from Download URL to use in Play
+  command: echo {{zookeeper_inst.downloadURL | basename | regex_replace('^zookeeper-(.*).tar.gz$', '\\1')}}
+  register: version
+
+- name: Debian | Print Version
+  debug: >
+   msg="Got Version {{version.stdout}}"
+
+- name: Debian | Download ZooKeeper
+  get_url: >
+   url={{zookeeper_inst.downloadURL}}
+   dest={{zookeeper_inst.inst_dir}}
+   mode=0440
+
+- name: Debian | Extract ZooKeeper from Download
+  unarchive: >
+   src={{zookeeper_inst.inst_dir}}/{{zookeeper_inst.downloadURL | basename}}
+   dest={{zookeeper_inst.inst_dir}}
+   copy=no
+   creates={{zookeeper_inst.inst_dir}}/zookeeper-{{version.stdout}}
+
+- name: Debian | Create symlink
+  file: >
+   src={{zookeeper_inst.inst_dir}}/zookeeper-{{version.stdout}}
+   dest={{zookeeper_inst.inst_dir}}/zookeeper
+   state=link
+
+- name: Debian | Copy the main zoo.cfg configuration file
+  template: >
+   src=Debian/{{version.stdout}}/zoo.cfg.j2
+   dest={{zookeeper_inst.inst_dir}}/zookeeper/conf/zoo.cfg
+
+- name: Debian | Copy log4j.properties
+  template: >
+   src=Debian/log4j.properties.j2
+   dest={{zookeeper_inst.inst_dir}}/zookeeper/conf/log4j.properties
+
+- name: Debian | Copy zkServer.sh server control script
+  template: >
+   src=Debian/zkServer.sh.j2
+   dest={{zookeeper_inst.inst_dir}}/zookeeper/bin/zkServer.sh
+   owner={{zookeeper_inst.user}}
+   group={{zookeeper_inst.group}}
+   mode=0755
+
+- name: Debian | Create Empty dataDir directory
+  file: >
+   path={{zookeeperZooCfg.dataDir}}
+   state=directory
+
+- name: Debian | Create the server myid file in cluster setup
+  template: >
+   src=Debian/myid.j2
+   dest='{{zookeeperZooCfg.dataDir}}/myid'
+  when: zookeeperZooCfg is defined and zookeeperZooCfg.servers is defined
+
+- name: Debian | Create log directory
+  file: >
+   path={{zookeeper_inst.inst_dir}}/zookeeper-{{version.stdout}}/log
+   state=directory
+
+- name: Debian | Set install dir permissions
+  file: >
+   path={{zookeeper_inst.inst_dir}}/zookeeper-{{version.stdout}}
+   owner={{zookeeper_inst.user}}
+   group={{zookeeper_inst.group}}
+   recurse=yes
+   state=directory
+
+- name: Debian | Set dataDir permissions
+  file: >
+   path={{zookeeperZooCfg.dataDir}}
+   owner={{zookeeper_inst.user}}
+   group={{zookeeper_inst.group}}
+   recurse=yes
+   state=directory

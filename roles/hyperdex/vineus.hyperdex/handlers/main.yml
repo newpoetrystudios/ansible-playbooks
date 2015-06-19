@@ -1,0 +1,10 @@
+---
+- name: Restart coordinator service
+  service:
+    name=hyperdex-coordinator
+    state=restarted
+
+- name: Restart daemon service
+  service:
+    name=hyperdex-daemon
+    state=restarted

@@ -1,0 +1,25 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "us-west-2",
+      "source_ami": "ami-53e8d763",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "intelos-bamboo-ebs-64bit"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "scripts/ansible.sh"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "bamboo.yml",
+      "playbook_dir": ".",
+      "role_paths": ["../roles/bamboo"],
+      "extra_arguments": "-vvvv"
+    }
+  ]
+}

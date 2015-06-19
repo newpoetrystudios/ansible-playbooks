@@ -1,0 +1,12 @@
+---
+zookeeper_inst:
+  user: zookeeper
+  group: zookeeper
+  inst_dir: /opt
+  downloadURL: http://apache.mirror.rafal.ca/zookeeper/stable/zookeeper-3.4.6.tar.gz
+  tarFileSHA256: 01b3938547cd620dc4c93efe07c0360411f4a66962a70500b163b59014046994
+  java: openjdk-7-jdk
+
+
+zookeeperZooCfg:
+ dataDir: "/var/lib/zookeeper"

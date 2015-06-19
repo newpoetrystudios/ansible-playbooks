@@ -1,9 +1,0 @@
-# copy package files to server
-- copy: src=foundationdb-clients_3.0.2-1_amd64.deb dest=/home/vagrant/foundationdb-clients_3.0.2-1_amd64.deb
-- copy: src=foundationdb-server_3.0.2-1_amd64.deb dest=/home/vagrant/foundationdb-server_3.0.2-1_amd64.deb
-
-# install packages
-- apt: deb=/home/vagrant/foundationdb-clients_3.0.2-1_amd64.deb
-  sudo: yes
-- apt: deb=/home/vagrant/foundationdb-server_3.0.2-1_amd64.deb
-  sudo: yes

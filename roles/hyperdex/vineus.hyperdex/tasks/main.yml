@@ -1,0 +1,103 @@
+---
+# install hyperdex
+
+- include: ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- include: default.yml
+  when: hyperdex_loaded_distribution|default(False) == False
+
+### coordinator ###
+
+- name: Add coordinator data directory
+  file:
+    path={{ hyperdex_coordinator_data_dir }}
+    state=directory
+    owner=root
+    group=root
+    mode=0755
+  when: hyperdex_coordinator_enable|default(False)
+
+- name: Add coordinator log directory
+  file:
+    path={{ hyperdex_coordinator_log_dir }}
+    state=directory
+    owner=root
+    group=root
+    mode=0755
+  when: hyperdex_coordinator_enable|default(False)
+
+- name: Add coordinator configuration
+  template:
+    src=hyperdex-coordinator.j2
+    dest=/etc/default/hyperdex-coordinator
+    owner=root
+    group=root
+    mode=0644
+  when: hyperdex_coordinator_enable|default(False)
+  notify: Restart coordinator service
+
+- name: Enable coordinator service
+  service:
+    name=hyperdex-coordinator
+    enabled={{ 'yes' if hyperdex_coordinator_enable else 'no'  }}
+
+### daemon ###
+
+- name: Clean data directory if needed (BIG FAT WARNING)
+  file:
+    path={{ hyperdex_daemon_data_dir }}
+    state=absent
+  when: hyperdex_rm_data|default(False)
+
+- name: Add daemon data directory
+  file:
+    path={{ hyperdex_daemon_data_dir }}
+    state=directory
+    owner=root
+    group=root
+    mode=0755
+  when: hyperdex_daemon_enable|default(False)
+
+- name: Add daemon log directory
+  file:
+    path={{ hyperdex_daemon_log_dir }}
+    state=directory
+    owner=root
+    group=root
+    mode=0755
+  when: hyperdex_daemon_enable|default(False)
+
+- name: Add daemon configuration
+  template:
+    src=hyperdex-daemon.j2
+    dest=/etc/default/hyperdex-daemon
+    owner=root
+    group=root
+    mode=0644
+  when: hyperdex_daemon_enable|default(False)
+  notify: Restart daemon service
+
+- name: Enable daemon service
+  service:
+    name=hyperdex-daemon
+    enabled={{ 'yes' if hyperdex_daemon_enable else 'no'  }}
+
+# services start
+
+- name: Start coordinator service
+  service:
+    name=hyperdex-coordinator
+    state={{ 'started' if hyperdex_coordinator_enable else 'stopped'  }}
+
+- wait_for:
+    state=started
+    host={{ hyperdex_daemon_connect_addr }}
+    port={{ hyperdex_daemon_connect_port }}
+    delay=2
+
+
+- name: Start daemon service
+  service:
+    name=hyperdex-daemon
+    state={{ 'started' if hyperdex_daemon_enable else 'stopped'  }}

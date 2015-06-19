@@ -1,0 +1,22 @@
+---
+# Avoid known_hosts hangups
+- name: Ensure ~/.ssh exists
+  file: state=directory path=~/.ssh
+
+- name: Ensure known hosts
+  shell: touch ~/.ssh/known_hosts
+
+- name: Remove github.com from known hosts
+  shell: ssh-keygen -R github.com
+
+- name: Ensure github.com in known hosts
+  shell: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+- name: Ensure github private ssh key is on the server
+  copy: src=id_rsa dest=~/.ssh/id_rsa mode=0600
+
+- name: Pull sources from the repository.
+  git:
+    repo:    "{{ repo }}"
+    version: "{{ branch }}"
+    dest:    "{{ app_dir }}"

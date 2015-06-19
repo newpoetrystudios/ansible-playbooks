@@ -1,0 +1,19 @@
+---
+- name: Check for Supported Operating System on Target
+  fail:
+    msg: "The operating system of the target machine ({{ inventory_hostname }}) is not currently supported."
+  when: ansible_distribution_release not in ['trusty']
+
+- name: Include Debian specific tasks
+  include: Debian.yml
+  when: ansible_os_family == 'Debian'
+
+# ToDo:
+#
+#- name: Include RedHat specific tasks
+#  include: RedHat.yml
+#  when: ansible_os_family == 'RedHat'
+#
+#- name: Include Suse specific tasks
+#  include: Suse.yml
+#  when: ansible_os_family == 'Suse'

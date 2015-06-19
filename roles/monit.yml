@@ -1,0 +1,4 @@
+---
+- hosts: monit
+  roles:
+    - { role: monit, tags: monit, sudo: yes }

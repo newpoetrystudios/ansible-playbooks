@@ -1,0 +1,17 @@
+---
+# defaults file for hyperdex
+hyperdex_coordinator_enable: False
+hyperdex_coordinator_log_dir: /var/log/hyperdex/coordinator
+hyperdex_coordinator_port: 6000
+hyperdex_coordinator_data_dir: /hyperdex/coordinator
+hyperdex_coordinator_listen_addr: auto
+hyperdex_coordinator_connect_addr:
+hyperdex_coordinator_connect_port: 6000
+
+hyperdex_daemon_enable: False
+hyperdex_daemon_log_dir: /var/log/hyperdex/daemon
+hyperdex_daemon_port: 6001
+hyperdex_daemon_data_dir: /hyperdex/daemon
+hyperdex_daemon_listen_addr: auto
+hyperdex_daemon_connect_addr:
+hyperdex_daemon_connect_port: 6000

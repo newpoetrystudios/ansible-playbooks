@@ -1,0 +1,6 @@
+---
+# handlers file for web-nodejs-deploy
+- name: restart web app
+  service:
+    name="node-{{ app }}"
+    state=restarted

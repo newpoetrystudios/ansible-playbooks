@@ -1,0 +1,24 @@
+---
+# defaults file for web-nodejs-deploy
+
+# deploy_from
+#   valid options:
+#   - github: pull source files directly from github (requires additional build step)
+#   - s3_zip: pull pre-built files from S3 .zip archive (no additional build step required)
+deploy_from:  "github"
+
+# general app configuration
+app_root:     "/var/app"
+app_dir:      "{{app_root}}/current"
+shared_dir:   "{{app_root}}/shared"
+src_dir:      "{{shared_dir}}/src"
+current_link: "{{app_root}}/current"
+releases_dir: "{{app_root}}/shared/releases"
+
+# github vars
+repo:         "git@github.com:intelos/web.git"
+branch:       "master"
+
+# S3 Zip archive vars
+s3_bucket:    "intelos/apps/web/production"
+archive:      "web_v1.zip"
