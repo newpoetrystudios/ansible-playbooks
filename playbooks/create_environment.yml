@@ -1,0 +1,38 @@
+###
+# Creates a new environment (and implicitly a new application if it doesn't
+# already exist). An application is something like "web" or "api". It's an
+# application that is HTTP server based.
+# 
+# An environment is an instance of the application. Something like production,
+# staging, or development.
+# 
+# Each app/environment has a JSON database file that resides on S3 that says
+# what should currently be deployed to each server in the environment's cluster
+# as well as a history of what's been deployed so that we can easily do
+# rollbacks.
+# 
+# Each environment consists of the following:
+#   - ELB
+#   - Auto-scaling launch configuration
+#   - Auto-scaling group
+#   
+##
+
+---
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - shell: pwd
+      register: debug
+
+    - debug: var=debug
+
+    - name: Creating environment database
+      shell: ../bin/create_env_db.js -a {{ app }} -e {{ env }}
+
+    # - name: Creating ELB
+
+
+    # - name: Creating launch configuration
+
+    # - name: Creating auto-scaling group

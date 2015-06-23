@@ -1,0 +1,20 @@
+{
+  "name": "intelos-ansible",
+  "version": "0.0.1",
+  "description": "Intelos ansible scripts and helper code",
+  "author": "Jeff Carnegie",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "~3.9.0",
+    "gulp-babel": "~5.1.0",
+    "babel": "~5.5.6",
+    "gulp-sourcemaps": "~1.5.2",
+    "gulp-watch": "~4.2.4"
+  },
+  "dependencies": {
+    "commander": "~2.8.1",
+    "bluebird": "~2.9.30",
+    "ramda": "~0.15.0",
+    "uuid": "~2.0.1"
+  }
+}
