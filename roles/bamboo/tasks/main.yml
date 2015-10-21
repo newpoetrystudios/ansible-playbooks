@@ -70,7 +70,7 @@
 - name: Make bamboo user owner of bamboo home directory
   shell: chown -R bamboo:bamboo /home/bamboo
 
-- name: copy profile.sh to /etc/profile.d/bamboo.sh
+- name: copy bamboo.sh to /etc/profile.d/bamboo.sh
   copy: src=bamboo.sh dest=/etc/profile.d/bamboo.sh
 
 - name: Configure bamboo to start automatically
@@ -87,4 +87,3 @@
 
 - name: Reset first run
   shell: touch /root/firstrun
-

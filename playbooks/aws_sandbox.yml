@@ -1,0 +1,44 @@
+# Networking
+# 
+# 1 VPC - Intelos
+# 
+# 2 subnets: outside, inside
+# 
+# Outside network where the web/app servers sit
+#   - servers accessible via internet
+#   - routes on certain ports to database servers on inside network
+# Inside network where the databases sit
+#   - no packets routed in/out from/to internet
+# 
+
+---
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: vpc
+      ec2_vpc:
+        state: present
+        cidr_block: 10.0.0.0/16
+        resource_tags: { "env": "development", "Name": "Intelos" }
+        region: "us-west-2"
+        subnets:
+          - cidr: 10.0.0.0/24
+            az: us-west-2c
+            resource_tags: {
+                "Name": "Outside 2c",
+                "env": "development",
+                "tier": "web"
+            }
+        internet_gateway: True
+        route_tables:
+          - resource_tags: { "env": "development", "Name": "Intelos" }
+            subnets:
+              - 10.0.0.0/24 
+            routes:
+              - dest: 0.0.0.0/0
+                gw: igw
+        region: us-west-2
+      register: intelosVPC
+
+    - name: debug
+      debug: var=intelosVPC

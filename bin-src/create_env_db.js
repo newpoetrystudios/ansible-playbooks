@@ -84,13 +84,36 @@ var createSubDomain = async function(route53, parentDomain, env) {
 }
 
 var createELB = async function(elb, app, env) {
+    try {
+        var params = {
+            LoadBalancerName: `${app}-${env}`,
+            Listeners: [{
+                InstancePort: 80,
+                LoadBalancerPort: 80,
+                Protocol: "HTTP"
+            }],
+            Subnets: ["subnet-aaf959f3"]
+        }
 
+        var data = await elb.createLoadBalancerAsync(params);
+        return data.DNSName;
+    } catch (e) {
+        console.log(e.stack);
+        throw e;
+    }
+}
+
+var addCNAME = async function(route53, src, dest) {
+    
 }
 
 var main = async function() {
     await createEnvDB(s3, bucket, prefix, key);
     await createSubDomain(route53, "intelostech.com", env);
-    await createELB(elb, app, env);
+    var dnsName = await createELB(elb, app, env);
+
+
+    console.log("created load balancer:", dnsName);
 }
 
 main();

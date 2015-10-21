@@ -1,0 +1,98 @@
+# tasks file for bamboo-aws-linux
+- name: Install dev tools
+  yum: name="@Development tools" state=present
+
+- name: Install Node.js
+  yum: name=nodejs enablerepo=epel state=present
+
+# - name: Install redis
+#   yum: name=redis enablerepo=epel state=present
+
+- name: Add redis user
+  user: name=redis shell=/bin/false system=yes
+
+- name: Add redis group
+  group: name=redis
+
+- name: Fetch redis source
+  get_url: url=http://download.redis.io/releases/redis-{{redis_version}}.tar.gz dest=/tmp
+
+- name: Unpack redis source
+  shell: tar zxvf redis-{{redis_version}}.tar.gz chdir=/tmp
+
+- name: Build redis
+  shell: make chdir=/tmp/redis-{{redis_version}}
+
+- name: Install redis
+  shell: make install chdir=/tmp/redis-{{redis_version}}
+
+- name: Install redis configuration file
+  template: src=redis.conf.j2 dest=/etc/redis.conf mode=0644
+
+- name: Setup redis pid file directory
+  file: path=/var/run/redis state=directory owner=redis group=redis
+
+- name: Setup redis working directory
+  file: path=/var/lib/redis state=directory owner=redis group=redis
+
+- name: Setup redis log directory
+  file: path=/var/log/redis state=directory owner=redis group=redis
+
+- name: check if log file exists
+  stat: path=/var/log/redis/redis.log
+  register: logfile_stat
+
+- name: ensure that log file exists and is writable by redis
+  file: path=/var/log/redis/redis.log mode=0600 state=touch owner=redis group=redis
+  when: logfile_stat.stat.exists == False
+
+- name: Install redis startup script
+  copy: src=redis dest=/etc/init.d/redis mode=0755
+
+- name: Configure redis to start at boot
+  service: name=redis enabled=yes
+
+- name: Install JDK 7
+  yum: name=java-1.7.0-openjdk-devel state=present
+
+- name: Install git
+  yum: name=git state=present
+
+- name: Create bamboo user
+  user: name=bamboo createhome=yes
+
+- name: Fetch bamboo agent zip
+  shell: wget https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/bamboo/atlassian-bamboo-elastic-image/{{bamboo_agent_version}}/atlassian-bamboo-elastic-image-{{bamboo_agent_version}}.zip
+
+- name: Create bamboo directory
+  shell: mkdir -p /opt/bamboo-elastic-agent
+
+- name: Unzip bamboo
+  shell: unzip -o atlassian-bamboo-elastic-image-{{bamboo_agent_version}}.zip -d /opt/bamboo-elastic-agent
+
+- name: Make bamboo user owner of bamboo agent directory
+  shell: chown -R bamboo /opt/bamboo-elastic-agent
+
+- name: Set permissions on bamboon agent directory
+  shell: chmod -R u+r+w /opt/bamboo-elastic-agent
+
+- name: Make bamboo user owner of bamboo home directory
+  shell: chown -R bamboo:bamboo /home/bamboo
+
+- name: copy bamboo.sh to /etc/profile.d/bamboo.sh
+  copy: src=bamboo.sh dest=/etc/profile.d/bamboo.sh
+
+- name: Configure bamboo to start automatically
+  lineinfile: dest=/etc/rc.local insertbefore="exit 0" line=". /opt/bamboo-elastic-agent/etc/rc.local"
+
+- name: Setup motd
+  shell: cp /opt/bamboo-elastic-agent/etc/motd /etc/motd
+
+- name: Add bamboo version to motd
+  shell: echo bamboo-5.8 >> /etc/motd
+
+# - name: Remove files
+#   shell: rm -f /root/firstlogin /etc/ssh/ssh_host_dsa_key /etc/ssh/ssh_host_dsa_key.pub /etc/ssh/ssh_host_key /etc/ssh/ssh_host_key.pub /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key.pub /root/.ssh/authorized_keys
+
+- name: Reset first run
+  shell: touch /root/firstrun
