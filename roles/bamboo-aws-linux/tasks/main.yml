@@ -5,8 +5,8 @@
 - name: Install Node.js
   yum: name=nodejs enablerepo=epel state=present
 
-# - name: Install redis
-#   yum: name=redis enablerepo=epel state=present
+- name: Install npm
+  yum: name=npm enablerepo=epel state=present
 
 - name: Add redis user
   user: name=redis shell=/bin/false system=yes
