@@ -3,7 +3,7 @@
 - hosts: all
   roles:
     - { role: linux, tags: linux, sudo: yes }
-    - { role: monit, tags: monit, sudo: yes }
+    # - { role: monit, tags: monit, sudo: yes }
     - { role: nginx, tags: nginx, sudo: yes }
     - { role: nodejs, tags: nodejs, sudo: yes }
     - { role: web-nodejs, tags: web-nodejs, sudo: yes }

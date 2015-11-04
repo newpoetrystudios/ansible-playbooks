@@ -1,14 +1,22 @@
-- name: install nodesource key
-  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+- name: create nodejs user
+  user: name=nodejs shell=/bin/bash
+  become: yes
 
-- name: install nodesource repository
-  apt_repository: repo="deb https://deb.nodesource.com/node-devel trusty main" state=present
+- name: add nodejs user to sudoers
+  lineinfile:
+    dest: /etc/sudoers.d/90-cloud-init-users
+    line: nodejs ALL=(ALL) NOPASSWD:ALL
+  become: yes
 
-- name: ensure apt is up to date
-  apt: update_cache=yes
+- name: install libcap2-bin
+  apt: name=libcap2-bin state=present
+  become: yes
+  become_user: nodejs
 
-- name: install node.js
-  apt: name=nodejs state=present
+- name: get node path
+  shell: sudo -i -u nodejs which node
+  register: node_path
 
-- name: install build tools
-  apt: name=build-essential state=present
+- name: enable node.js to listen on sockets on ports < 1024
+  shell: setcap cap_net_bind_service=+ep {{ node_path.stdout }}
+  become: yes

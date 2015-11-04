@@ -5,6 +5,7 @@
 - hosts: all
   tasks: []
 
-- hosts: nodejs
+- hosts: all
+  sudo: yes
   roles:
      - { role: nodejs, tags: nodejs }

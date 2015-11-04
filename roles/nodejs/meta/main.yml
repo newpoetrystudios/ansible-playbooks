@@ -1,0 +1,11 @@
+---
+dependencies:
+    - role: radamanth.node-nvm-ansible
+      nvm_user: { user: "nodejs", group: "nodejs", passphrase: "" }
+      nvm_install_dir: /var/nvm
+      nvm_node_version: "4.2.1"
+      nvm_npm_pkg:
+        - pm2
+      nvm_yo_gen:
+      nvm_users_profiles:
+        - { user: "root", group: "root" }
