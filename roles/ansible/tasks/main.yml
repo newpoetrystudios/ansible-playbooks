@@ -1,0 +1,13 @@
+---
+# tasks file for ansible
+  - name: install software-properties-common
+    apt: name=software-properties-common state=present
+
+  - name: add ansible repository
+    apt_repository: repo=ppa:ansible/ansible state=present
+
+  - name: update apt caches
+    apt: update_cache=yes
+
+  - name: install ansible
+    apt: name=ansible state=present

@@ -5,20 +5,30 @@
 #   valid options:
 #   - github: pull source files directly from github (requires additional build step)
 #   - s3_zip: pull pre-built files from S3 .zip archive (no additional build step required)
-deploy_from:  "github"
+# deploy_from:  "github"
+deploy_from: "s3"
+
+s3_region:   "us-west-2"
+s3_bucket:   "intelos"
+s3_key_path: "deploy/web"
 
 # general app configuration
-app_root:     "/var/app"
-app_dir:      "{{app_root}}/current"
-shared_dir:   "{{app_root}}/shared"
-src_dir:      "{{shared_dir}}/src"
-current_link: "{{app_root}}/current"
-releases_dir: "{{app_root}}/shared/releases"
+env:            "production"
+app:            "web"
+app_version:    "c3f06eeae425db984d1c7df9d514571c11abfeed"
+app_root:       "/var/app"
+app_dir:        "{{app_root}}/current"
+app_entry:      "server/index.js"
+app_port:       80
+app_shared_dir: "{{app_root}}/shared"
+# src_dir:      "{{shared_dir}}/src"
+# current_link: "{{app_root}}/current"
+# releases_dir: "{{app_root}}/shared/releases"
 
 # github vars
 repo:         "git@github.com:intelos/web.git"
 branch:       "master"
 
 # S3 Zip archive vars
-s3_bucket:    "intelos/apps/web/production"
+# s3_bucket:    "intelos/apps/web/production"
 archive:      "web_v1.zip"

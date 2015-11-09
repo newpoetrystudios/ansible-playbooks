@@ -6,7 +6,7 @@
       "source_ami": "ami-53e8d763",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "intelos-bamboo-ebs-64bit"
+      "ami_name": "intelos-bamboo-ebs-64bit-v5.3"
     }
   ],
   "provisioners": [
@@ -18,7 +18,13 @@
       "type": "ansible-local",
       "playbook_file": "bamboo.yml",
       "playbook_dir": ".",
-      "role_paths": ["../roles/bamboo"],
+      "role_paths": [
+          "../roles/bamboo",
+          "../roles/linux",
+          "../roles/ansible",
+          "../roles/nodejs",
+          "../roles/radamanth.node-nvm-ansible"
+      ],
       "extra_arguments": "-vvvv"
     }
   ]

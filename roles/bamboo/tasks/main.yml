@@ -1,53 +1,20 @@
-- name: Enable multiverse repositories
-  apt_repository: repo="{{item}}" update_cache=no
-  register: multiverse_installed
-  when: ansible_distribution == 'Ubuntu'
-  with_items:
-    - 'deb http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}} multiverse'
-    - 'deb-src http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}} multiverse'
-    - 'deb http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}}-updates multiverse'
-    - 'deb-src http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}}-updates multiverse'
+- name: Fetch ec2 api tools
+  shell: wget http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip
 
-- name: Install nodesource key
-  apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key state=present
+- name: Unzip ec2 api tools
+  shell: unzip ec2-api-tools.zip
 
-- name: copy nodesource.list to /etc/apt/sources.list.d/nodesource.list
-  copy: src=nodesource.list dest=/etc/apt/sources.list.d/nodesource.list
+- name: Move ec2 api tools into place
+  shell: mv ec2-api-tools-* /opt/ec2-api-tools
 
-- name: Update apt cache after enabling multiverse repos
-  apt:
-    update_cache: true
-  when: multiverse_installed | changed
+- name: Add JDK 8 repository
+  apt_repository: repo='ppa:openjdk-r/ppa'
 
-- name: Install nodejs
-  apt: name="nodejs=0.10.25~dfsg2-2ubuntu1" state=present
+- name: Update apt cache
+  apt: update_cache=yes
 
-- name: Install npm
-  apt: name=npm state=present
-
-- name: Install zip
-  apt: name=zip state=latest
-
-- name: Install ec2-api-tools
-  apt: name=ec2-api-tools state=latest
-
-- name: Install JDK 7
-  apt: name=openjdk-7-jdk state=latest
-
-- name: Install git
-  apt: name=git state=latest
-
-- name: Ensure /opt/node-0.10/bin exists
-  file: state=directory path=/opt/node-0.10/bin
-
-- name: Link /usr/bin/node to /usr/bin/nodejs
-  file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
-
-- name: Link /opt/node-0.10/bin/node to /usr/bin/nodejs
-  file: src=/usr/bin/nodejs dest=/opt/node-0.10/bin/node state=link
-
-- name: Link /opt/node-0.10/bin/npm to /usr/bin/npm
-  file: src=/usr/bin/npm dest=/opt/node-0.10/bin/npm state=link
+- name: Install JDK 8
+  apt: name=openjdk-8-jdk state=latest
 
 - name: Create bamboo user
   user: name=bamboo createhome=yes
@@ -72,6 +39,12 @@
 
 - name: copy bamboo.sh to /etc/profile.d/bamboo.sh
   copy: src=bamboo.sh dest=/etc/profile.d/bamboo.sh
+
+- name: copy rc.local to /root
+  copy: src=rc.local dest=/root mode=755
+
+- name: Make sure we're using JDK 8
+  lineinfile: dest=/etc/rc.local insertbefore="exit 0" line=". /root/rc.local"
 
 - name: Configure bamboo to start automatically
   lineinfile: dest=/etc/rc.local insertbefore="exit 0" line=". /opt/bamboo-elastic-agent/etc/rc.local"

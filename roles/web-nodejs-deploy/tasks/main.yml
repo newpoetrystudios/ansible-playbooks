@@ -1,28 +1,41 @@
----
+# ---
 # tasks file for web-nodejs-deploy
+- name: download app from S3
+  shell: aws --region {{ s3_region }} s3 cp s3://{{ s3_bucket }}/{{ s3_key_path }}/{{ app_version }}.zip /tmp
 
-- include: deploy_from_github.yml
-  when: deploy_from == "github"
-- include: deploy_from_s3_zip.yml
-  when: deploy_from == "s3_zip"
+- name: remove app current dir
+  file: name={{ app_dir }} state=absent
+  sudo: yes
+  sudo_user: root
 
-- name: Ensure latest npm modules are installed
-  npm: path={{ app_dir }}
+- name: create app current dir
+  file: name={{ app_dir }} state=directory owner=nodejs group=nodejs
+  sudo: yes
+  sudo_user: root
 
-- name: Build app
-  shell: NODE_ENV={{ env }} node_modules/gulp/bin/gulp.js build
-  args:
-    chdir: "{{ app_dir }}"
+- name: unzip the app
+  unarchive: copy=no src=/tmp/{{ app_version }}.zip dest={{ app_dir }}
 
-- name: Setup NODE_ENV shell environment variable
-  template: src=nodeenv.sh.j2 dest=/etc/profile.d/nodeenv.sh
+- name: stat node_modules dir in app directory
+  stat: path={{ app_dir }}/node_modules
+  register: node_modules
 
-- name: Setup init script
-  template: src=init.sh.j2 dest="/etc/init.d/node-{{app}}" mode=0755
+- name: link to existing node_modules directory if not included in app zip
+  file: src={{ app_shared_dir }}/node_modules dest={{ app_dir }}/node_modules state=link
+  when: node_modules.stat.exists == False
 
-- name: Enable service
-  service: name=node-{{app}} enabled=yes
-  notify:
-    - restart web app
+- name: install npm modules
+  shell: sudo su nodejs -c ". /var/nvm/nvm.sh; npm install" chdir={{ app_dir }}
+  sudo: yes
+  sudo_user: nodejs
 
+- name: restart app
+  service: name=node-{{ app }} state=reloaded
+  sudo: yes
+  sudo_user: root
 
+# -
+# - name: Enable service
+#   service: name=node-{{app}} enabled=yes
+#   notify:
+#     - restart web app

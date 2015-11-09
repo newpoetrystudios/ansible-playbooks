@@ -1,5 +1,5 @@
 ---
 - hosts: all
   roles:
-    - { role: collectd, tags: collectd, sudo: yes }
+    # - { role: collectd, tags: collectd, sudo: yes }
     - { role: linux, tags: linux, sudo: yes }

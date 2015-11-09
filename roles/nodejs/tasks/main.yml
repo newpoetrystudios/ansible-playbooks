@@ -1,17 +1,17 @@
 - name: create nodejs user
   user: name=nodejs shell=/bin/bash
-  become: yes
+  sudo: yes
 
 - name: add nodejs user to sudoers
   lineinfile:
     dest: /etc/sudoers.d/90-cloud-init-users
     line: nodejs ALL=(ALL) NOPASSWD:ALL
-  become: yes
+  sudo: yes
 
 - name: install libcap2-bin
   apt: name=libcap2-bin state=present
-  become: yes
-  become_user: nodejs
+  sudo: yes
+  sudo_user: nodejs
 
 - name: get node path
   shell: sudo -i -u nodejs which node
@@ -19,4 +19,4 @@
 
 - name: enable node.js to listen on sockets on ports < 1024
   shell: setcap cap_net_bind_service=+ep {{ node_path.stdout }}
-  become: yes
+  sudo: yes

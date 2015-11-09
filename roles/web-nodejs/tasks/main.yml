@@ -1,11 +1,36 @@
----
+# ---
 # tasks file for web-nodejs
-  - name: Copy nginx configuration template
-    template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
-    notify:
-      - restart nginx
+  # - name: Copy nginx configuration template
+  #   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  #   notify:
+  #     - restart nginx
+  #
+  # - name: Copy nginx proxy config for node.js
+  #   template: src=nginx-proxy.conf.j2 dest=/etc/nginx/conf.d/proxy.conf
+  #   notify:
+  #     - restart nginx
 
-  - name: Copy nginx proxy config for node.js
-    template: src=nginx-proxy.conf.j2 dest=/etc/nginx/conf.d/proxy.conf
-    notify:
-      - restart nginx
+- name: create app shared dir
+  file: name={{ app_shared_dir }} state=directory owner=nodejs group=nodejs
+  sudo: yes
+  sudo_user: root
+
+- name: ensure node_modules directory exists
+  file: name={{ app_shared_dir }}/node_modules state=directory owner=nodejs group=nodejs
+  sudo: yes
+  sudo_user: root
+
+- name: ensure log dir exists
+  file: name=/var/log/nodejs owner=nodejs group=nodejs state=directory
+  sudo: yes
+  sudo_user: root
+
+- name: render init script
+  template: src=init.sh.j2 dest=/etc/init.d/node-{{ app }} mode=0755
+  sudo: yes
+  sudo_user: root
+
+- name: enable node as an init daemon
+  service: name=node-{{ app }} enabled=yes
+  sudo: yes
+  sudo_user: root

@@ -52,8 +52,8 @@
 - name: Configure redis to start at boot
   service: name=redis enabled=yes
 
-- name: Install JDK 7
-  yum: name=java-1.7.0-openjdk-devel state=present
+- name: Install JDK 8
+  yum: name=java-1.8.0-openjdk-devel state=present
 
 - name: Install git
   yum: name=git state=present
@@ -81,6 +81,12 @@
 
 - name: copy bamboo.sh to /etc/profile.d/bamboo.sh
   copy: src=bamboo.sh dest=/etc/profile.d/bamboo.sh
+
+- name: copy rc.local to /root
+  copy: src=rc.local dest=/root mode=755
+
+- name: Make sure we're using JDK 8
+  lineinfile: dest=/etc/rc.local insertbefore="exit 0" line=". /root/rc.local"
 
 - name: Configure bamboo to start automatically
   lineinfile: dest=/etc/rc.local insertbefore="exit 0" line=". /opt/bamboo-elastic-agent/etc/rc.local"

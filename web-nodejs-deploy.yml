@@ -2,4 +2,4 @@
 # - hosts: web-nodejs
 - hosts: all
   roles:
-    - { role: web-nodejs-deploy, tags: web-nodejs-deploy, sudo: yes }
+    - { role: web-nodejs-deploy, tags: web-nodejs-deploy, sudo: yes, sudo_user: nodejs }

@@ -1,5 +1,15 @@
 # Todo: ipchains? other security?
 
+- name: Enable multiverse repositories
+  apt_repository: repo="{{item}}" update_cache=no
+  register: multiverse_installed
+  when: ansible_distribution == 'Ubuntu'
+  with_items:
+    - 'deb http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}} multiverse'
+    - 'deb-src http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}} multiverse'
+    - 'deb http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}}-updates multiverse'
+    - 'deb-src http://archive.ubuntu.com/ubuntu {{ansible_distribution_release}}-updates multiverse'
+
 - name: Update apt cache
   apt: update_cache=yes
 
@@ -9,26 +19,28 @@
 - name: Install base packages
   apt: name={{ item }} state=present update_cache=yes
   with_items:
-    - nagios-nrpe-server
-    - nagios-plugins
+    - ec2-api-tools
+    # - nagios-nrpe-server
+    # - nagios-plugins
     - emacs
     - build-essential
     - python-software-properties
     - python
     - python-pycurl
     - python-pip
-    - collectd
-    - collectd-utils
+    # - collectd
+    # - collectd-utils
     - awscli
     - git
+    - zip
 
 - name: Ensure local fact directory exists
   file: state=directory dest=/etc/ansible/facts.d
 
-- name: Copy memory fact script (so we can monitor memory usage via Nagios)
-  copy: src=memory.fact dest=/etc/ansible/facts.d/memory.fact mode=750 owner=ubuntu
-
-- name: Set allowed hosts so that nrpe daemon accepts connections from nagios servers
-  template: src=nrpe.cfg.j2 dest=/etc/nagios/nrpe.cfg
-  notify:
-  - restart nrpe
+# - name: Copy memory fact script (so we can monitor memory usage via Nagios)
+#   copy: src=memory.fact dest=/etc/ansible/facts.d/memory.fact mode=750 owner=ubuntu
+#
+# - name: Set allowed hosts so that nrpe daemon accepts connections from nagios servers
+#   template: src=nrpe.cfg.j2 dest=/etc/nagios/nrpe.cfg
+#   notify:
+#   - restart nrpe

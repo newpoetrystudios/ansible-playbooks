@@ -6,7 +6,7 @@
       "source_ami": "ami-d1c5d1e1",
       "instance_type": "t2.micro",
       "ssh_username": "ec2-user",
-      "ami_name": "intelos-bamboo-ebs-64bit-aws-linux",
+      "ami_name": "intelos-bamboo-ebs-64bit-aws-linux-v5.3",
       "ssh_pty": "true"
     }
   ],
